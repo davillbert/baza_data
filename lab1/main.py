@@ -113,3 +113,19 @@ fig.show()
 def exp_interpol_func(tau, a, b, c):
   return a * np.exp(-b * tau) + c
 
+
+def create_interpol(measure, st_an_vel):
+    arrt = []
+    arry = []
+    for i in range(945):
+        if int(measure['Start Angular Velocity'][i]) == st_an_vel:
+            #print(measure['Angular Velocity'][i])
+            arrt.append(measure['Время, мс'][i] - measure['Время, мс'][0])
+            arry.append(measure['Angular Velocity'][i])
+
+    popt, pcov = curve_fit(func, arrt, arry)
+    plt.plot(xs, func(xs, *popt), 'r-')
+
+    p = np.linspace(0,2000, 1000)
+    plt.plot(values[:,0], values[:,1])
+    plt.plot(p, model2(p, *params))
