@@ -111,8 +111,8 @@ fig = px.line(
     data, x='Время, мс', y='Angular Velocity', color='Start Angular Velocity', markers=False
 )
 
-fig.write_image("fig1.png")
-fig.show()
+fig.write_image("png_s/Braking Process/4 exponents of braking.png")
+# fig.show()
 
 def exp_interpol_func(tau, a, b, c):
   return a * np.exp(-b * tau) + c
@@ -121,6 +121,7 @@ def line_interpol_func(tau, a,b):
   return a * tau + b
 
 def create_interpol(measure, st_an_vel):
+    # sourcery skip: remove-redundant-pass, simplify-numeric-comparison
     arrt = []
     arry = []
     arrb = []
@@ -138,28 +139,26 @@ def create_interpol(measure, st_an_vel):
 
 
     #popt, pcov = spo.curve_fit(exp_interpol_func, arrt, arry)
-    popt1, _ = spo.curve_fit(exp_interpol_func, arrt,  arry)
-    print("Exp arguments: ", popt1)
+    print(f'Start angular velocity {st_an_vel}:')
+    exp_args, _ = spo.curve_fit(exp_interpol_func, arrt,  arry)
+    print("\tExp arguments: ", exp_args)
 
-    popt2, _ = spo.curve_fit(line_interpol_func, arrt, arry)
-    print("Line arguments: ", popt2)
+    line_args, _ = spo.curve_fit(line_interpol_func, arrt, arry)
+    print("\tLine arguments: ", line_args, '\n')
     # using the optimal arguments to estimate new values
 
-    ae,  be, ce = popt1[0], popt1[1], popt1[2]
+    ae, be, ce = exp_args[0], exp_args[1], exp_args[2]
     y_fit1 = []
     for t in arrt:
         y_fit1.append(exp_interpol_func(t, ae,  be, ce))
     #y_fit1 = ae * np.exp(-be * arrt)
 
-    al, bl = popt2[0], popt2[1]
+    al, bl = line_args[0], line_args[1]
     y_fit2 = []
     for t in arrt:
         y_fit2.append(line_interpol_func(t, al, bl))
-    #y_fit2 = al * np.exp(-bl * arrt)
-    new_y = []
-    for td in arrt:
-        new_y.append(exp_interpol_func(td, ae, np.mean(arrb), ce))
-
+    new_y = [exp_interpol_func(td, ae, np.mean(arrb), ce) for td in arrt]
+    '''
     plt.plot(arrt, arry)
     plt.plot(arrt,  y_fit1, label="exp")
     plt.plot(arrt,  y_fit2, label="line")
@@ -172,19 +171,21 @@ def create_interpol(measure, st_an_vel):
 
     plt.savefig(f'approx_fit{st_an_vel}.png')
     ep = r'$e^{-{be}\\cdot\\tau}$'
-
+    '''
     fig_app = go.Figure()
-    fig_app.add_trace(go.Scatter(x=arrt, y=arry, name='Real  measure'))
-    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit2, name=f'$Line: y = { round(al,2)}\\cdot \\tau + { round(bl,2)} $'))
-    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit1, name=f'$Exp: y = { round(ae,2)}\\cdot e^{-round(be, 2)}\\tau + {round(ce,2)} $'))
-    fig_app.update_layout(legend_orientation="h",
-                      legend=dict(x=.5, xanchor="center"),
-                      title=f'Approx Start Angular Velocity {st_an_vel}',
-                      xaxis_title='$\\tau,  Время, мс$',
-                      yaxis_title="y, Angular Velocity",
+    fig_app.add_trace(go.Scatter(x=arrt, y=arry, name='Real value'))
+    # fig_app.add_trace(go.Scatter(x=arrt, y=y_fit2, name=f'Line: $y = { round(al,2)}\\cdot \\tau + { round(bl,2)} $'))
+    pm = '+' if ce > 0 else '-'
+    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit1, name='$\\text{Exp: }' + f'\\omega = { round(ae,2)}\\cdot \\exp({-round(be, 2)}t) {pm} {abs(round(ce,2))} $'))
+    fig_app.update_layout(legend_orientation="v",
+                      legend=dict(x=0.9, xanchor="right", y=0.9, yanchor='top',
+                        font=dict(size=16)),
+                      title=f'Approximation of Braking Process with Start Angular Velocity w={st_an_vel}',
+                      xaxis_title='Время, мс',
+                      yaxis_title="$Угловая скорость, \\frac{1}{500} об/мин$",
                       margin=dict(l=0, r=0, t=30, b=0))
-
-    fig_app.show()
+    # fig_app.show()
+    fig_app.write_image(f'png_s/Braking Process/{st_an_vel}_ang_vel.png')
 
 
 
