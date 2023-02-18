@@ -3,14 +3,12 @@ import plotly.express as px
 import matplotlib.pyplot as plt
 import scipy.optimize as spo
 import numpy as np
-
-# test comment
-
+import os
 import plotly
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
-
+os.chdir('lab1/')
 # hh:mm:ss.msmsms  ->  m_sec
 def hhmmss2ms(hms):
     return (int(hms[:2]) * 60 * 60 + int(hms[3:5])*60 + int(hms[6:8]))*1000 + int(hms[9:])
@@ -195,4 +193,3 @@ create_interpol(data, 1000)
 create_interpol(data, 1500)
 create_interpol(data, 2000)
 
-//хз как убрать повторный вывод главных графиков (ту мач окошек, соррри)
