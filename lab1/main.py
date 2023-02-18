@@ -5,6 +5,11 @@ import scipy.optimize as spo
 import numpy as np
 
 
+import plotly
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+
+
 # hh:mm:ss.msmsms  ->  m_sec
 def hhmmss2ms(hms):
     return (int(hms[:2]) * 60 * 60 + int(hms[3:5])*60 + int(hms[6:8]))*1000 + int(hms[9:])
@@ -110,22 +115,80 @@ fig = px.line(
 fig.write_image("fig1.png")
 fig.show()
 
-def exp_interpol_func(tau, a, b, c):
-  return a * np.exp(-b * tau) + c
+def exp_interpol_func(tau, a, b):
+  return a * np.exp(-b * tau)
 
+def line_interpol_func(tau, a,b):
+  return a * tau + b
 
 def create_interpol(measure, st_an_vel):
     arrt = []
     arry = []
+    arrb = []
+    k = 0
     for i in range(945):
         if int(measure['Start Angular Velocity'][i]) == st_an_vel:
             #print(measure['Angular Velocity'][i])
-            arrt.append(measure['Время, мс'][i] - measure['Время, мс'][0])
-            arry.append(measure['Angular Velocity'][i])
+            arrt.append((measure['Время, мс'][i] - measure['Время, мс'][0])/1000)
+            arry.append(measure['Angular Velocity'][i] / 500)
+            if (measure['Время, мс'][i] - measure['Время, мс'][0]) != 0 and (measure['Angular Velocity'][i] / 500) > 0:
+                arrb.append(-(np.log(measure['Angular Velocity'][i] / 500))/((measure['Время, мс'][i] - measure['Время, мс'][0])/1000))
+            else:
+                pass
+            k = k + 1
 
-    popt, pcov = curve_fit(func, arrt, arry)
-    plt.plot(xs, func(xs, *popt), 'r-')
 
-    p = np.linspace(0,2000, 1000)
-    plt.plot(values[:,0], values[:,1])
-    plt.plot(p, model2(p, *params))
+    #popt, pcov = spo.curve_fit(exp_interpol_func, arrt, arry)
+    popt1, _ = spo.curve_fit(exp_interpol_func, arrt,  arry)
+    print("Exp arguments: ", popt1)
+
+    popt2, _ = spo.curve_fit(line_interpol_func, arrt, arry)
+    print("Line arguments: ", popt2)
+    # using the optimal arguments to estimate new values
+
+    ae,  be = popt1[0], popt1[1]
+    y_fit1 = []
+    for t in arrt:
+        y_fit1.append(exp_interpol_func(t, ae,  be))
+    #y_fit1 = ae * np.exp(-be * arrt)
+
+    al, bl = popt2[0], popt2[1]
+    y_fit2 = []
+    for t in arrt:
+        y_fit2.append(line_interpol_func(t, al, bl))
+    #y_fit2 = al * np.exp(-bl * arrt)
+    new_y = []
+    for td in arrt:
+        new_y.append(exp_interpol_func(td, ae, np.mean(arrb)))
+
+    plt.plot(arrt, arry)
+    plt.plot(arrt,  y_fit1, label="exp")
+    plt.plot(arrt,  y_fit2, label="line")
+    plt.plot(arrt, new_y, label="stupid exp")
+    #print(popt[0])
+    plt.xlabel('Angular Velocity')
+    plt.ylabel('Время, мс')
+    plt.legend(loc='best', fancybox=True, shadow=True)
+    plt.grid(True)
+
+    plt.savefig(f'approx_fit{st_an_vel}.png')
+
+    fig_app = go.Figure()
+    fig_app.add_trace(go.Scatter(x=arrt, y=arry, name='Real  measure'))
+    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit1, name=f'$Line: y = { round(al,2)}\\cdot \\tau + { round(bl,2)} $'))
+    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit2, name=f'$Exp: y = { round(ae,2)}\\cdot \\exp{(-round(bl,2))} $'))
+    fig_app.update_layout(legend_orientation="h",
+                      legend=dict(x=.5, xanchor="center"),
+                      title=f'Approx Start Angular Velocity {st_an_vel}',
+                      xaxis_title='$\\tau,  Время, мс$',
+                      yaxis_title="y, Angular Velocity",
+                      margin=dict(l=0, r=0, t=30, b=0))
+    fig.show()
+    fig_app.show()
+
+
+
+create_interpol(data, 500)
+create_interpol(data, 1000)
+create_interpol(data, 1500)
+create_interpol(data, 2000)
