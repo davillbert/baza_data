@@ -116,8 +116,8 @@ fig = px.line(
 fig.write_image("fig1.png")
 fig.show()
 
-def exp_interpol_func(tau, a, b):
-  return a * np.exp(-b * tau)
+def exp_interpol_func(tau, a, b, c):
+  return a * np.exp(-b * tau) + c
 
 def line_interpol_func(tau, a,b):
   return a * tau + b
@@ -147,10 +147,10 @@ def create_interpol(measure, st_an_vel):
     print("Line arguments: ", popt2)
     # using the optimal arguments to estimate new values
 
-    ae,  be = popt1[0], popt1[1]
+    ae,  be, ce = popt1[0], popt1[1], popt1[2]
     y_fit1 = []
     for t in arrt:
-        y_fit1.append(exp_interpol_func(t, ae,  be))
+        y_fit1.append(exp_interpol_func(t, ae,  be, ce))
     #y_fit1 = ae * np.exp(-be * arrt)
 
     al, bl = popt2[0], popt2[1]
@@ -160,7 +160,7 @@ def create_interpol(measure, st_an_vel):
     #y_fit2 = al * np.exp(-bl * arrt)
     new_y = []
     for td in arrt:
-        new_y.append(exp_interpol_func(td, ae, np.mean(arrb)))
+        new_y.append(exp_interpol_func(td, ae, np.mean(arrb), ce))
 
     plt.plot(arrt, arry)
     plt.plot(arrt,  y_fit1, label="exp")
@@ -173,11 +173,12 @@ def create_interpol(measure, st_an_vel):
     plt.grid(True)
 
     plt.savefig(f'approx_fit{st_an_vel}.png')
+    ep = r'$e^{-{be}\\cdot\\tau}$'
 
     fig_app = go.Figure()
     fig_app.add_trace(go.Scatter(x=arrt, y=arry, name='Real  measure'))
-    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit1, name=f'$Line: y = { round(al,2)}\\cdot \\tau + { round(bl,2)} $'))
-    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit2, name=f'$Exp: y = { round(ae,2)}\\cdot \\exp{(-round(bl,2))} $'))
+    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit2, name=f'$Line: y = { round(al,2)}\\cdot \\tau + { round(bl,2)} $'))
+    fig_app.add_trace(go.Scatter(x=arrt, y=y_fit1, name=f'$Exp: y = { round(ae,2)}\\cdot e^{-round(be, 2)}\\tau + {round(ce,2)} $'))
     fig_app.update_layout(legend_orientation="h",
                       legend=dict(x=.5, xanchor="center"),
                       title=f'Approx Start Angular Velocity {st_an_vel}',
