@@ -194,3 +194,5 @@ create_interpol(data, 500)
 create_interpol(data, 1000)
 create_interpol(data, 1500)
 create_interpol(data, 2000)
+
+//хз как убрать повторный вывод главных графиков (ту мач окошек, соррри)
