@@ -184,7 +184,7 @@ def create_interpol(measure, st_an_vel):
                       xaxis_title='$\\tau,  Время, мс$',
                       yaxis_title="y, Angular Velocity",
                       margin=dict(l=0, r=0, t=30, b=0))
-    fig.show()
+
     fig_app.show()
 
 
