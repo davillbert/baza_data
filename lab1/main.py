@@ -9,12 +9,13 @@ import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 
 os.chdir('lab1/')
+
 # hh:mm:ss.msmsms  ->  m_sec
 def hhmmss2ms(hms):
     return (int(hms[:2]) * 60 * 60 + int(hms[3:5])*60 + int(hms[6:8]))*1000 + int(hms[9:])
 
 # YY_MM_DD hh:mm:ss.ms  ->  hh:mm:ss.msmsms  ->  m_sec
-def df_date2time(df_data):
+def df_date2time(df_data, START_TIME):
     for i in range(len(df_data)):
         df_data.at[i] = hhmmss2ms(df_data[i][9:]) - hhmmss2ms(START_TIME)
     return df_data
@@ -29,6 +30,18 @@ def change_time(df, st_end_tuple):
     tmp_angR = pd.DataFrame(df['Угловая скорость, об/мин'], columns=['Угловая скорость, об/мин']).set_axis(range(len(tmp)))
     new_df = pd.concat([tmp, tmp_angR], axis=1, ignore_index=True)
     new_df.columns = ['Время, мс', 'Угловая скорость, об/мин']
+    return new_df
+
+# time  ->  time - start_time
+def change_time_curs(df, st_end_tuple):
+    tmp = df['Время, мс'].to_list()
+    for i in range(len(tmp)):
+        tmp[i] = tmp[i] - st_end_tuple[0]
+    tmp = pd.DataFrame(pd.Series(tmp), columns=['Время, мс'])
+    tmp_angR = df['Сила тока, А']
+    tmp_angR = pd.DataFrame(df['Сила тока, А'], columns=['Сила тока, А']).set_axis(range(len(tmp)))
+    new_df = pd.concat([tmp, tmp_angR], axis=1, ignore_index=True)
+    new_df.columns = ['Время, мс', 'Сила тока, А']
     return new_df
 
 # Returns df for plot
@@ -88,31 +101,14 @@ def mk_colors_for_plot(times):
 
     return pd.Series(to_be_color, name='Start Angular Velocity')
 
-
-
-
-
-START_TIME = '11:25:00.000'
-# set_ang_rate_df = pd.read_csv('1210_УДМ_Y/21B0_rw.setAngularRate.csv', delimiter=';')
-df_angRate_data = pd.read_csv('1210_УДМ/2100_rw.angularRate.csv', delimiter=';')
-
-
-# time_setAngRate_df = pd.DataFrame(pd.concat([df_date2time(set_ang_rate_df['Date and Time']),set_ang_rate_df['rate']], axis=1), columns=['Date and Time', 'rate'])
-time_AngRate_df = pd.DataFrame(pd.concat([df_date2time(df_angRate_data['Date and Time']), df_angRate_data['angRate']], axis=1),
-                                columns=['Date and Time', 'angRate'])
-time_AngRate_df.columns = ['Время, мс', 'Угловая скорость, об/мин']
-
-to_measure_brake = time_AngRate_df[(time_AngRate_df['Время, мс'] > 636522) & (time_AngRate_df['Время, мс'] < 949000)]
-
-
-data = create_data(change_time, to_measure_brake)
-
-fig = px.line(
+def mk_plot_angV_time(data, save_flag=True, show_flag=False):
+    fig = px.line(
     data, x='Время, мс', y='Angular Velocity', color='Start Angular Velocity', markers=False
-)
-
-fig.write_image("png_s/Braking Process/4 exponents of braking.png")
-# fig.show()
+    )
+    if save_flag:
+        fig.write_image("png_s/Braking Process/4 exponents of braking.png")
+    if show_flag:
+        fig.show()
 
 def exp_interpol_func(tau, a, b, c):
   return a * np.exp(-b * tau) + c
@@ -188,9 +184,92 @@ def create_interpol(measure, st_an_vel):
     fig_app.write_image(f'png_s/Braking Process/{st_an_vel}_ang_vel.png')
 
 
+START_TIME = '11:25:00.000'
+# set_ang_rate_df = pd.read_csv('1210_УДМ_Y/21B0_rw.setAngularRate.csv', delimiter=';')
+df_angRate_data = pd.read_csv('1210_УДМ/2100_rw.angularRate.csv', delimiter=';')
 
+# time_setAngRate_df = pd.DataFrame(pd.concat([df_date2time(set_ang_rate_df['Date and Time']),set_ang_rate_df['rate']], axis=1), columns=['Date and Time', 'rate'])
+time_AngRate_df = pd.DataFrame(pd.concat([df_date2time(df_angRate_data['Date and Time'], START_TIME), df_angRate_data['angRate']], axis=1),
+                                columns=['Date and Time', 'angRate'])
+time_AngRate_df.columns = ['Время, мс', 'Угловая скорость, об/мин']
+
+to_measure_brake = time_AngRate_df[(time_AngRate_df['Время, мс'] > 636522) & (time_AngRate_df['Время, мс'] < 949000)]
+data = create_data(change_time, to_measure_brake)
+
+'''
+##################################################################################################
+mk_plot_angV_time(data)
 create_interpol(data, 500)
 create_interpol(data, 1000)
 create_interpol(data, 1500)
 create_interpol(data, 2000)
+##################################################################################################
+'''
+
+# the_fig = px.line(time_AngRate_df, x='Время, мс', y='Угловая скорость, об/мин', markers=False)
+# the_fig.show()
+
+START_TIME_FOR_CURRS = 1641088      # ms
+END_TIME_FOR_CURRS = 2270775      # ms
+df_rotor_currents = pd.read_csv('1210_УДМ/2106_rw.rotorCurrents.csv', delimiter=';')
+
+time_cur_df = pd.DataFrame(pd.concat([df_date2time(df_rotor_currents['Date and Time'], START_TIME), df_rotor_currents['Iq']], axis=1),
+                                columns=['Date and Time', 'Iq'])
+time_cur_df.columns = ['Время, мс', 'Сила тока, А']
+
+to_measure_currs = time_cur_df[(time_cur_df['Время, мс'] > START_TIME_FOR_CURRS) & (time_cur_df['Время, мс'] < END_TIME_FOR_CURRS)]
+
+cur_start1, cur_end1 = 1641217, 1655646
+cur_start2, cur_end2 = 1901988, 1919209
+cur_start3, cur_end3 = 2093600, 2109580
+cur_start4, cur_end4 = 2225544, 2241958
+st_ends_currs = [(cur_start1, cur_end1), (cur_start2, cur_end2), (cur_start3, cur_end3), (cur_start4, cur_end4)]
+
+angles = [0, np.arctan(7/30), np.arctan(12/30), np.arctan(19/30)]
+curr_dfs = [
+    # angle = 0
+    to_measure_currs[
+        (to_measure_currs['Время, мс'] > cur_start1)
+        & (to_measure_currs['Время, мс'] < cur_end1)
+    ],
+    # 1000 -> 0
+    to_measure_currs[
+        (to_measure_currs['Время, мс'] > cur_start2)
+        & (to_measure_currs['Время, мс'] < cur_end2)
+    ],
+    # 1500 -> 0
+    to_measure_currs[
+        (to_measure_currs['Время, мс'] > cur_start3)
+        & (to_measure_currs['Время, мс'] < cur_end3)
+    ],
+    # 2000 -> 0
+    to_measure_currs[
+        (to_measure_currs['Время, мс'] > cur_start4)
+        & (to_measure_currs['Время, мс'] < cur_end4)
+    ],
+]
+
+currs_list = []
+for i in range(len(curr_dfs)):
+    curr_dfs[i] = change_time_curs(curr_dfs[i], st_ends_currs[i])
+    curr_dfs[i].columns = ['Время, мс', 'Сила тока, А']
+    currs_list.append((curr_dfs[i]['Время, мс'].to_list(), curr_dfs[i]['Сила тока, А'].to_list()))
+
+# currs_fig = px.line(to_measure_currs, x='Время, мс', y='Сила тока, А', markers=False)
+# currs_fig.show()
+
+cur_fig = go.Figure()
+for i in range(len(currs_list)):
+    cur_fig.add_trace(go.Scatter(x=currs_list[i][0], y=currs_list[i][1], name=f'Angle a={round(angles[i]*57.3,2)} grad'))
+
+    cur_fig.update_layout(legend_orientation="v",
+                      legend=dict(x=0.9, xanchor="right", y=0.9, yanchor='top',
+                        font=dict(size=16)),
+                      title='Currents',
+                      xaxis_title='Время, мс',
+                      yaxis_title="Сила тока, А",
+                      margin=dict(l=0, r=0, t=30, b=0))
+
+# cur_fig.show()
+cur_fig.write_image('png_s/Currents/Curs_time_4_angles.png')
 
