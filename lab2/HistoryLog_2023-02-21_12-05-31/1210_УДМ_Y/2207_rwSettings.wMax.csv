@@ -1,0 +1,4 @@
+Date and Time;Stamp;Direction;Source;Destination;Message Id;Length;Status for Tx;Data;wMax
+23_02_21 12:07:57.036;0;I;1210;1;2207;4;;00409c45;5000.0
+23_02_21 12:09:35.635;4818;I;1210;1;2207;4;;00401c45;2500.0
+23_02_21 12:11:00.425;7809;I;1210;1;2207;4;;00401c45;2500.0
