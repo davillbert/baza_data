@@ -15,8 +15,8 @@ def change_time(df, st_end_tuple):
     for i in range(len(tmp)):
         tmp[i] = tmp[i] - st_end_tuple[0]
     tmp = pd.DataFrame(pd.Series(tmp), columns=['Время, мс'])
-    tmp_angR = df['Угловая скорость, об/мин']
-    tmp_angR = pd.DataFrame(df['Угловая скорость, об/мин'], columns=['Угловая скорость, об/мин']).set_axis(range(len(tmp)))
+    tmp_angR = df['Момент импульса, м^2 кг/с']
+    tmp_angR = pd.DataFrame(df['Момент импульса, м^2 кг/с'], columns=['Момент импульса, м^2 кг/с']).set_axis(range(len(tmp)))
     new_df = pd.concat([tmp, tmp_angR], axis=1, ignore_index=True)
-    new_df.columns = ['Время, мс', 'Угловая скорость, об/мин']
+    new_df.columns = ['Время, мс', 'Момент импульса, м^2 кг/с']
     return new_df
