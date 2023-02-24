@@ -1,5 +1,6 @@
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -51,26 +52,14 @@ time_map = {
         ]['Время, мс'])
         for k, v in torq_map.items()
 }
-''' 
-for k in data_map:
-    cur_fig = go.Figure()
-    cur_fig.add_trace(go.Scatter(x=time_map[k], y=data_map[k], name=f'Ref Torque: {k}'))
-    # cur_fig.add_hline(data_map[k].std())
-    cur_fig.update_layout(legend_orientation="v",
-                      legend=dict(x=0.9, xanchor="right", y=0.9, yanchor='top',
-                        font=dict(size=16)),
-                      title=f'Ref Torque: {k}',
-                      xaxis_title='Время, мс',
-                      yaxis_title="Момент импульса, м^2 кг/с",
-                      margin=dict(l=0, r=0, t=30, b=0))
-    cur_fig.show()
-'''
-std_fig = go.Figure()
-std_fig.add_trace(go.Scatter(x=list(data_map.keys()), y=std_arr, name='STD'))
-std_fig.update_layout(title='Std',
-                  xaxis_title='Ref Torque',
-                  yaxis_title="Std",
-                  margin=dict(l=0, r=0, t=30, b=0))
-# std_fig.show()
-std_fig.write_image('std(ref_torque).png')
+
+fig, ax = plt.subplots()
+plt.title("Среднеквадратичное отклонение")
+plt.xlabel("Требуемое значение момента, м^2 кг/с")
+plt.ylabel("Среднеквадратичное отклонение")
+plt.grid(True, axis='both')
+ax.plot(list(data_map.keys()), std_arr, marker='o', markersize=8, color='black', linestyle='solid')
+# plt.show()
+fig.savefig('std(refT).png', dpi=150)
+
 print('Hello')
