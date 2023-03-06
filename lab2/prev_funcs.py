@@ -9,6 +9,15 @@ def df_date2time(df_data, START_TIME):
         df_data.at[i] = hhmmss2ms(df_data[i][9:]) - hhmmss2ms(START_TIME)
     return df_data
 
+def df_date2time_interval(df_data, START_TIME, FINISH_TIME):
+    for i in range(len(df_data)):
+        df_data.at[i] = hhmmss2ms(df_data[i][9:]) - hhmmss2ms(START_TIME)
+        if (df_data.at[i] > hhmmss2ms(FINISH_TIME)):
+            df_data.at.pop(-1)
+            break
+    return df_data
+
+
 # time  ->  time - start_time
 def change_time(df, st_end_tuple):
     tmp = df['Время, мс'].to_list()
