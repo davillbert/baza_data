@@ -1,0 +1,4 @@
+Date and Time;Stamp;Direction;Source;Destination;Message Id;Length;Status for Tx;Data;rate
+23_03_21 11:28:56.644;0;O;1;1210;21B0;4;ERR;0000fa43;500.0
+23_03_21 11:30:01.004;51982;O;1;1210;21B0;4;ERR;00001643;150.0
+23_03_21 11:31:17.349;53725;O;1;1210;21B0;4;ERR;00009643;300.0

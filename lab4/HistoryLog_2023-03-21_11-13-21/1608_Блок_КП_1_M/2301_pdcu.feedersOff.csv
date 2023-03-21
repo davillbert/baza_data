@@ -1,0 +1,3 @@
+Date and Time;Stamp;Direction;Source;Destination;Message Id;Length;Status for Tx;Data;mask
+23_03_21 11:25:38.260;0;O;1;1608;2301;4;OK;01000000;1
+23_03_21 11:25:41.544;47104;O;1;1608;2301;4;OK;00000100;65536
