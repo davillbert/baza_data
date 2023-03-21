@@ -8,7 +8,8 @@ import plotly.graph_objs as go
 from prev_funcs import change_time, df_date2time, hhmmss2ms
 from prettytable import PrettyTable
 
-#os.chdir('lab2') os.getcwd()+'\HistoryLog/
+os.chdir('lab2')
+# os.getcwd()+'\HistoryLog'
 
 
 START_TIME = '12:19:00.000'
@@ -124,7 +125,7 @@ plt.xlabel("Требуемое значение момента, м^2 кг/с")
 plt.ylabel("Среднеквадратичное отклонение")
 plt.grid(True, axis='both')
 ax.plot(list(data_map.keys()), std_arr, marker='o', markersize=8, color='black', linestyle='solid')
-# plt.show()
+plt.show()
 fig.savefig('std(refT).png', dpi=150)
 
 
