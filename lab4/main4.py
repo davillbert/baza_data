@@ -54,11 +54,12 @@ ax1_1.set(xlabel=param_name,
 ax1_1.grid(True, axis='both')
 
 ax1_2.plot(param_values, ampl_array, marker='o', markersize=8, color='black', linestyle='solid')
-ax1_2.set(title="Амплитуда", xlabel=param_name, 
+ax1_2.set_title("Амплитуда", fontsize=10)
+ax1_2.set(xlabel=param_name, 
             ylabel="Амплитуда $(max-min)/2$")
 ax1_2.grid(True, axis='both')
 
-# fig1.savefig('std(refT).png', dpi=150)
+fig1.savefig('lab4/СКО и амплитуда(omega).png', dpi=150)
 plt.show()
 
 

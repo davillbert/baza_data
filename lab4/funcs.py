@@ -35,6 +35,7 @@ def cut_df(df, start, end, t_col='Date and Time', START_TIME='00:00:00'):
     res = df[(df[t_col] > (hhmmss2ms(start) - hhmmss2ms(START_TIME))) & (df[t_col] < (hhmmss2ms(end)- hhmmss2ms(START_TIME)))]
     return res.reset_index().drop('index', axis=1)
 
+
 def cut_df_alot(df, time_brackets, START_TIME='00:00:00', t_col='Date and Time'):
     '''
     Вырезает из таблицы пласты, ограниченные значениями из time_brackets по значениям столбца t_col. 
@@ -59,9 +60,10 @@ def df_from_csv_w_cols(path, columns, delimiter=';'):
 
 def get_vec_abs_from_components(df, xyz_cols, t_col='Date and Time', vec_name='Abs(Vector)'):
     '''
-    Возвращает dataFrame с модулем вектора, который задаётся несколькими компонентами. Названия столбцов компонент в df передаётся в виде массива xyz_cols.
+    Возвращает dataFrame с модулем вектора, который задаётся одной или несколькими компонентами.
+    Названия столбцов компонент в df передаётся в виде массива xyz_cols.
 
-    dataFrame, []  ->  dataFrame:[Time, Vec]
+    dataFrame, [x_1,...,x_n]  ->  dataFrame:[Time, Vec]
     '''
     squares_sum = np.zeros(len(df[xyz_cols[0]]))
     for i in range(len(xyz_cols)):
