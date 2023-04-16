@@ -64,6 +64,7 @@ def main(path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles)
 
     W_arr = []
     V_arr = []
+    VWT = []
     for i in range(len(dfs_srt_ctn)):
         if i == (len(dfs_srt_ctn) - 1):
             break
@@ -110,7 +111,7 @@ def main(path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles)
                 V_arr.append(V)
                 #print(W)
                 W_arr.append(W)
-
+                VWT.append(np.dot(V, W.T))
         #t = dfs_srt_ctn['x S1'].at[i+1]*dfs_srt_ctn['x S1'].at[i]
         # matrix = np.array([[1, 2, 3], [2, 5, 6], [6, 7, 4]])
         #round((dfs_srt_ctn.iloc[i,1]*dfs_srt_ctn.iloc[i+1,1]+dfs_srt_ctn.iloc[i,2]*dfs_srt_ctn.iloc[i+1,2]+dfs_srt_ctn.iloc[i,3]*dfs_srt_ctn.iloc[i+1,3]))*
@@ -140,8 +141,12 @@ def main(path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles)
 
     #print(scal_filt)
 
-    print(V_arr)
-    print(W_arr)
+    #print(V_arr)
+    #print(W_arr)
+    for i in VWT:
+        print("======================")
+        print(i)
+
 main(path, columns, xyz_cols, t_cols, START_TIMEs, time_brackets, plot_titles)
 
 
