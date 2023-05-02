@@ -1,7 +1,7 @@
 # from lab2.prev_funcs import hhmmss2ms, df_date2time, change_time
 import os
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -33,10 +33,10 @@ time_brackets = [
     ['14:33:09', '14:36:00']
     ]
 
-
+buf = ''
 plot_titles = ['График 1', 'График 2']
 
-def main(path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles):
+def main(buf, path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles):
     df1 = pd.DataFrame()
     df2 = pd.DataFrame()
     for i in range(len(path)):
@@ -60,7 +60,7 @@ def main(path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles)
 
     dfs_srt_ctn = dfs_new.drop_duplicates(subset=['x S1', 'x S2', 'y S1', 'y S2', 'z S1', 'z S2'])
     dfs_srt_ctn = dfs_srt_ctn.reset_index(drop=True)
-    print(dfs_srt_ctn)
+    # print(dfs_srt_ctn)
 
     W_arr = []
     V_arr = []
@@ -144,9 +144,16 @@ def main(path, columns, xyz_cols, t_col, START_TIME, time_brackets, plot_titles)
     #print(V_arr)
     #print(W_arr)
     for i in VWT:
-        print("======================")
-        print(i)
+        buf += "======================\n"
+        # print("======================")
+        buf += f'{i}\n'
+        # print(i)
+    return buf
 
-main(path, columns, xyz_cols, t_cols, START_TIMEs, time_brackets, plot_titles)
+
+buf = main(buf, path, columns, xyz_cols, t_cols, START_TIMEs, time_brackets, plot_titles)
 
 
+with open('out.txt', mode='w', encoding='utf-8') as file:
+    file.write(buf)
+    # file.write('ASAFSAFFSA')
