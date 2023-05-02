@@ -11,6 +11,16 @@ def hhmmss2ms(hms):
         return hhmmss2ms(f'{hms}.000')
     return res 
 
+
+def ms_to_time_str(ms):
+    '''
+    m_sec  ->  hh:mm:ss.msmsms
+    '''
+    seconds, ms = divmod(ms, 1000)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}.{ms:03d}"
+
 def df_date_and_time_to_time_in_ms(df_data, t_col='Date and Time', START_TIME='00:00:00'):
     '''
     Убирает дату, а время переводит в мс.
